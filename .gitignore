@@ -1,0 +1,16 @@
+resume-generator-app
+assets/demo-output.pdf
+assets/demo-desktop.*
+assets/playwright-results/
+frontend/dist/
+frontend/node_modules/
+build/bin/
+tmp/
+e2e/desktop/node_modules/
+e2e/desktop/test-results/
+.claude/
+.vscode/
+.env
+.env.*
+.DS_Store
+.idea/

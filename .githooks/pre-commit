@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Check gofmt on staged .go files
+staged_go_files=$(git diff --cached --name-only --diff-filter=ACM -- '*.go' || true)
+if [ -n "$staged_go_files" ]; then
+  unformatted=$(echo "$staged_go_files" | xargs gofmt -l 2>/dev/null || true)
+  if [ -n "$unformatted" ]; then
+    echo "ERROR: The following Go files are not formatted:"
+    echo "$unformatted"
+    echo "Run 'gofmt -w' on the above files and re-stage."
+    exit 1
+  fi
+fi
+
+# Run tests
+echo "Running go test ./..."
+go test ./...

@@ -1,0 +1,217 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Re-release the current tag (use when a previous release partially failed)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build frontend
+        run: cd frontend && npm install && npm run build
+
+      - name: Check formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "The following files are not formatted:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v6
+
+      - name: Test
+        run: go test ./...
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: urmzd/semantic-release@v1
+        id: sr
+        with:
+          force: ${{ inputs.force }}
+
+    outputs:
+      released: ${{ steps.sr.outputs.released }}
+      tag: ${{ steps.sr.outputs.tag }}
+      version: ${{ steps.sr.outputs.version }}
+
+  build:
+    needs: release
+    if: needs.release.outputs.released == 'true'
+    name: Build (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: macos-latest
+            platform: darwin
+            artifact: resume-generator-app-darwin.zip
+          - os: ubuntu-latest
+            platform: linux-gnu
+            artifact: resume-generator-app-gnu
+          - os: windows-latest
+            platform: windows
+            artifact: resume-generator-app.exe
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release.outputs.tag }}
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Install Linux dependencies
+        if: matrix.platform == 'linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
+
+      - name: Build desktop app
+        shell: bash
+        run: >
+          wails build -trimpath
+          ${{ matrix.platform == 'linux-gnu' && '-tags webkit2_41' || '' }}
+          -ldflags "-X main.version=${{ needs.release.outputs.version }}
+          -X main.commit=${{ github.sha }}
+          -X main.date=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      - name: Package macOS app
+        if: matrix.platform == 'darwin'
+        run: cd build/bin && zip -r resume-generator-app-darwin.zip resume-generator.app
+
+      - name: Upload to release (macOS)
+        if: matrix.platform == 'darwin'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ needs.release.outputs.tag }}" "build/bin/resume-generator-app-darwin.zip" --clobber
+
+      - name: Upload to release (Linux GNU)
+        if: matrix.platform == 'linux-gnu'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mv build/bin/resume-generator build/bin/resume-generator-app-gnu
+          gh release upload "${{ needs.release.outputs.tag }}" "build/bin/resume-generator-app-gnu" --clobber
+
+      - name: Upload to release (Windows)
+        if: matrix.platform == 'windows'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mv build/bin/resume-generator.exe build/bin/resume-generator-app.exe
+          gh release upload "${{ needs.release.outputs.tag }}" "build/bin/resume-generator-app.exe" --clobber
+        shell: bash
+
+  demo-desktop:
+    needs: release
+    if: needs.release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release.outputs.tag }}
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev xvfb
+
+      - name: Install Playwright browsers
+        run: cd e2e/desktop && npm install && npx playwright install chromium --with-deps
+
+      - name: Start Wails dev server and run Playwright
+        env:
+          CI: "true"
+        run: |
+          xvfb-run wails dev &
+          WAILS_PID=$!
+          trap 'kill $WAILS_PID 2>/dev/null; wait $WAILS_PID 2>/dev/null' EXIT
+
+          echo "Waiting for Wails dev server on :34115..."
+          for i in $(seq 1 120); do
+            if curl -sf http://localhost:34115 > /dev/null 2>&1; then
+              echo "Dev server ready."
+              break
+            fi
+            if [ "$i" -eq 120 ]; then
+              echo "Timeout: dev server did not start within 120s."
+              exit 1
+            fi
+            sleep 1
+          done
+
+          cd e2e/desktop && npx playwright test
+
+      - name: Copy demo screenshot
+        run: |
+          SCREENSHOT=$(find assets/playwright-results -name '*.png' | head -1)
+          if [ -n "$SCREENSHOT" ]; then
+            cp "$SCREENSHOT" assets/demo-desktop.png
+          fi
+
+      - name: Upload desktop demo to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          [ -f assets/demo-desktop.png ] && gh release upload "${{ needs.release.outputs.tag }}" "assets/demo-desktop.png" --clobber
+          VIDEO=$(find assets/playwright-results -name 'video.webm' | head -1)
+          if [ -n "$VIDEO" ]; then
+            cp "$VIDEO" assets/demo-desktop.webm
+            gh release upload "${{ needs.release.outputs.tag }}" "assets/demo-desktop.webm" --clobber
+          fi
