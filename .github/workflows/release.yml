@@ -180,7 +180,6 @@ jobs:
         run: |
           xvfb-run wails dev -tags webkit2_41 &
           WAILS_PID=$!
-          trap 'kill $WAILS_PID 2>/dev/null; wait $WAILS_PID 2>/dev/null' EXIT
 
           echo "Waiting for Wails dev server on :34115..."
           for i in $(seq 1 120); do
@@ -190,12 +189,17 @@ jobs:
             fi
             if [ "$i" -eq 120 ]; then
               echo "Timeout: dev server did not start within 120s."
+              kill $WAILS_PID 2>/dev/null; wait $WAILS_PID 2>/dev/null || true
               exit 1
             fi
             sleep 1
           done
 
           cd e2e/desktop && npx playwright test
+          TEST_EXIT=$?
+
+          kill $WAILS_PID 2>/dev/null; wait $WAILS_PID 2>/dev/null || true
+          exit $TEST_EXIT
 
       - name: Copy demo screenshot
         run: |
