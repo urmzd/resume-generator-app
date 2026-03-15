@@ -5,7 +5,7 @@ go 1.25.5
 require (
 	github.com/urmzd/resume-generator v0.9.1
 	github.com/wailsapp/wails/v2 v2.11.0
-	go.uber.org/zap v1.24.0
+	go.uber.org/zap v1.27.1
 )
 
 require (
@@ -80,8 +80,7 @@ require (
 	github.com/ysmood/leakless v0.9.0 // indirect
 	github.com/yuin/goldmark v1.7.13 // indirect
 	github.com/yuin/goldmark-emoji v1.0.6 // indirect
-	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/multierr v1.9.0 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/crypto v0.40.0 // indirect
 	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/sys v0.42.0 // indirect
