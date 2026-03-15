@@ -1,5 +1,6 @@
 resume-generator-app
 assets/demo-output.pdf
+assets/demo-desktop.webm
 assets/playwright-results/
 frontend/dist/
 frontend/node_modules/
