@@ -19,40 +19,12 @@ permissions:
   contents: write
 
 jobs:
-  test:
+  ci:
     if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: Build frontend
-        run: cd frontend && npm install && npm run build
-
-      - name: Check formatting
-        run: |
-          unformatted=$(gofmt -l .)
-          if [ -n "$unformatted" ]; then
-            echo "The following files are not formatted:"
-            echo "$unformatted"
-            exit 1
-          fi
-
-      - name: Lint
-        uses: golangci/golangci-lint-action@v7
-
-      - name: Test
-        run: go test ./...
+    uses: ./.github/workflows/ci.yml
 
   release:
-    needs: test
+    needs: ci
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -153,7 +125,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.release.outputs.tag }}
+          ref: main
 
       - uses: actions/setup-go@v5
         with:
@@ -219,4 +191,4 @@ jobs:
           git add assets/demo-desktop.png assets/demo-desktop.webm
           git diff --cached --quiet && exit 0
           git commit -m "chore: update demo assets [skip ci]"
-          git push
+          git push origin HEAD:main
