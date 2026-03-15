@@ -1,4 +1,4 @@
-import { Textarea } from "@/components/ui/textarea";
+import { MarkdownEditor } from "@/components/ui/markdown-editor";
 import { Label } from "@/components/ui/label";
 import EditorSection from "./EditorSection";
 
@@ -12,11 +12,11 @@ export default function SummaryEditor({ value, onChange }: SummaryEditorProps) {
     <EditorSection title="Summary">
       <div>
         <Label>Summary</Label>
-        <Textarea
+        <MarkdownEditor
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={onChange}
           rows={4}
-          placeholder="Professional summary…"
+          placeholder="Professional summary..."
         />
       </div>
     </EditorSection>
