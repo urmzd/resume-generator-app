@@ -165,7 +165,7 @@ resume-generator-app
 │       ├── containers/    # GalleryContainer (PDF caching, background generation)
 │       ├── hooks/         # useResumeEditor (draft state, validation, save)
 │       └── lib/           # Theme provider, PDF cache, utilities
-├── e2e/desktop/     # Playwright e2e tests + demo recording
+├── tests/e2e/     # Playwright e2e tests + demo recording
 └── scripts/         # Shell scripts for dev tasks
 ```
 

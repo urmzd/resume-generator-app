@@ -22,7 +22,7 @@ for i in $(seq 1 120); do
   sleep 1
 done
 
-cd e2e/desktop && npx playwright test
+cd tests/e2e && npx playwright test
 TEST_EXIT=$?
 cd ../..
 
