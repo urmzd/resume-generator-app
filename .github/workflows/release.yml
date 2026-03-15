@@ -203,14 +203,14 @@ jobs:
 
       - name: Copy demo screenshot
         run: |
-          SCREENSHOT=$(find assets/playwright-results -name '*.png' | head -1)
+          SCREENSHOT=$(find build/playwright-results -name '*.png' | head -1)
           if [ -n "$SCREENSHOT" ]; then
             cp "$SCREENSHOT" assets/demo-desktop.png
           fi
 
       - name: Commit demo assets
         run: |
-          VIDEO=$(find assets/playwright-results -name 'video.webm' | head -1)
+          VIDEO=$(find build/playwright-results -name 'video.webm' | head -1)
           if [ -n "$VIDEO" ]; then
             cp "$VIDEO" assets/demo-desktop.webm
           fi

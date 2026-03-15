@@ -7,7 +7,7 @@ const RESUME_PATH = path.resolve(
   __dirname,
   "../../assets/example_resumes/software_engineer.yml"
 );
-const OUTPUT_PDF = path.resolve(__dirname, "../../assets/demo-output.pdf");
+const OUTPUT_PDF = path.resolve(__dirname, "../../build/demo-output.pdf");
 const SCREENSHOTS = path.resolve(__dirname, "../../assets/screenshots");
 
 // Slow down interactions so the recorded video is easy to follow.

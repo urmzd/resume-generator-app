@@ -3,7 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const assetsDir = path.resolve(__dirname, "../../assets");
+const buildDir = path.resolve(__dirname, "../../build");
 
 export default defineConfig({
   testDir: ".",
@@ -18,7 +18,7 @@ export default defineConfig({
       size: { width: 1280, height: 800 },
     },
   },
-  outputDir: path.join(assetsDir, "playwright-results"),
+  outputDir: path.join(buildDir, "playwright-results"),
   projects: [
     {
       name: "desktop-demo",

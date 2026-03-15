@@ -27,12 +27,12 @@ TEST_EXIT=$?
 cd ../..
 
 mkdir -p assets
-SCREENSHOT=$(find assets/playwright-results -name '*.png' 2>/dev/null | head -1)
+SCREENSHOT=$(find build/playwright-results -name '*.png' 2>/dev/null | head -1)
 if [ -n "$SCREENSHOT" ]; then
   cp "$SCREENSHOT" assets/demo-desktop.png
   echo "Screenshot saved to assets/demo-desktop.png"
 fi
-VIDEO=$(find assets/playwright-results -name 'video.webm' 2>/dev/null | head -1)
+VIDEO=$(find build/playwright-results -name 'video.webm' 2>/dev/null | head -1)
 if [ -n "$VIDEO" ]; then
   cp "$VIDEO" assets/demo-desktop.webm
   echo "Video saved to assets/demo-desktop.webm"
