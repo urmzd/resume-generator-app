@@ -208,23 +208,15 @@ jobs:
             cp "$SCREENSHOT" assets/demo-desktop.png
           fi
 
-      - name: Upload desktop demo to release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit demo assets
         run: |
           VIDEO=$(find assets/playwright-results -name 'video.webm' | head -1)
           if [ -n "$VIDEO" ]; then
             cp "$VIDEO" assets/demo-desktop.webm
-            gh release upload "${{ needs.release.outputs.tag }}" "assets/demo-desktop.webm" --clobber
           fi
-
-      - name: Commit demo screenshot
-        run: |
-          if [ -f assets/demo-desktop.png ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add assets/demo-desktop.png
-            git diff --cached --quiet && exit 0
-            git commit -m "chore: update demo screenshot [skip ci]"
-            git push
-          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/demo-desktop.png assets/demo-desktop.webm
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: update demo assets [skip ci]"
+          git push
