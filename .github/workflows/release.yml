@@ -54,7 +54,12 @@ jobs:
         include:
           - os: macos-latest
             platform: darwin
-            artifact: resume-generator-app-darwin.zip
+            arch: arm64
+            artifact: resume-generator-app-darwin-arm64.dmg
+          - os: macos-13
+            platform: darwin
+            arch: amd64
+            artifact: resume-generator-app-darwin-amd64.dmg
           - os: ubuntu-latest
             platform: linux-gnu
             artifact: resume-generator-app-gnu
@@ -87,20 +92,25 @@ jobs:
         shell: bash
         run: >
           wails build -trimpath
+          ${{ matrix.platform == 'darwin' && format('-platform darwin/{0}', matrix.arch) || '' }}
           ${{ matrix.platform == 'linux-gnu' && '-tags webkit2_41' || '' }}
           -ldflags "-X main.version=${{ needs.release.outputs.version }}
           -X main.commit=${{ github.sha }}
           -X main.date=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-      - name: Package macOS app
+      - name: Package macOS app as DMG
         if: matrix.platform == 'darwin'
-        run: cd build/bin && zip -r resume-generator-app-darwin.zip resume-generator-app.app
+        run: |
+          hdiutil create -volname "Resume Generator" \
+            -srcfolder build/bin/resume-generator-app.app \
+            -ov -format UDZO \
+            "build/bin/${{ matrix.artifact }}"
 
       - name: Upload to release (macOS)
         if: matrix.platform == 'darwin'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${{ needs.release.outputs.tag }}" "build/bin/resume-generator-app-darwin.zip" --clobber
+        run: gh release upload "${{ needs.release.outputs.tag }}" "build/bin/${{ matrix.artifact }}" --clobber
 
       - name: Upload to release (Linux GNU)
         if: matrix.platform == 'linux-gnu'
