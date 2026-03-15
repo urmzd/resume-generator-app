@@ -19,19 +19,32 @@
   <img src="assets/demo-desktop.png" alt="Resume Generator App — gallery view with live PDF preview" width="90%">
 </p>
 
-<br />
+## Showcase
 
-## Features
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="assets/screenshots/drop-page.png" alt="Drop page — drag and drop or open file" width="100%">
+      <br /><em>Drop page</em>
+    </td>
+    <td align="center" width="50%">
+      <img src="assets/screenshots/gallery.png" alt="Gallery view with template thumbnails and PDF preview" width="100%">
+      <br /><em>Gallery with live preview</em>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="assets/screenshots/editor.png" alt="Inline editor panel with contact, summary, and experience fields" width="100%">
+      <br /><em>Inline editor</em>
+    </td>
+    <td align="center" width="50%">
+      <img src="assets/screenshots/gallery-light.png" alt="Gallery view in light mode" width="100%">
+      <br /><em>Light mode</em>
+    </td>
+  </tr>
+</table>
 
-- **Live PDF Preview** — see your resume rendered in real time as you switch templates
-- **Template Gallery** — browse and compare LaTeX, HTML, DOCX, and Markdown templates side by side
-- **Inline Editor** — edit resume content directly in the app with instant validation
-- **Native File Picker** — open YAML, JSON, TOML, or Markdown resume files via drag-and-drop or system dialog
-- **Export** — save as PDF, DOCX, HTML, or LaTeX with a single click
-- **Dark Mode** — toggle between light and dark themes
-- **Cross-Platform** — runs on macOS, Linux, and Windows
-
-## Template Showcase
+### Template Output
 
 <p align="center">
   <img src="assets/example_results/modern-html.png" alt="Modern HTML" width="30%">
@@ -43,6 +56,46 @@
 <p align="center">
   <em>Modern HTML &nbsp;&middot;&nbsp; Modern LaTeX &nbsp;&middot;&nbsp; Modern CV</em>
 </p>
+
+## Features
+
+### Preview & Gallery
+
+- **Live PDF Preview** — see your resume rendered in real time as you switch templates
+- **Template Gallery** — browse and compare all templates via scrollable thumbnail strip with format badges (HTML, LaTeX, DOCX, Markdown)
+- **Background Pre-generation** — all template PDFs are generated in the background so switching is instant
+- **Page Count Warnings** — alerts you when your resume exceeds 1 page with a suggestion to use compact density
+- **Keyboard Navigation** — use arrow keys to browse templates, Enter/Space to select
+
+### Inline Editor
+
+- **Full Resume Editing** — edit every field directly in the app: contact info, summary, experience, education, skills, projects, certifications, and languages
+- **Layout Customization** — adjust density (compact/normal/comfortable), typography (sans/serif/mono), header alignment (left/center/compact), skill columns, and section ordering
+- **Real-time Validation** — field-level errors displayed instantly as you type
+- **Apply & Save** — apply changes to regenerate previews, or save back to the original file on disk
+- **Collapsible Sections** — accordion-style editor keeps things organized
+
+### File Handling
+
+- **Drag & Drop** — drop `.yml`, `.yaml`, `.json`, `.toml`, or `.md` files onto the window
+- **Native File Picker** — OS-level file dialog for opening resume files
+- **Save to File** — persist edits back to the original resume file
+- **Format Validation** — clear error messages for unsupported file types
+
+### Export
+
+- **PDF** — export any template as PDF via native save dialog
+- **DOCX** — export Word documents (when a DOCX template is selected)
+- **HTML / LaTeX** — export raw source files for further customization
+
+### Appearance
+
+- **Dark & Light Mode** — toggle with one click, persists across sessions
+- **Cross-Platform** — runs on macOS, Linux, and Windows
+
+### CLI Fallback
+
+Pass any arguments to use the full [resume-generator CLI](https://github.com/urmzd/resume-generator) — the app binary includes all CLI commands (run, validate, templates, assess, etc.).
 
 ## Install
 
@@ -69,17 +122,18 @@ Launch the app (no arguments) to open the GUI:
 ./build/bin/resume-generator-app
 ```
 
-1. **Open** a resume file (YAML, JSON, TOML, or Markdown) via drag-and-drop or the file picker
-2. **Browse** templates in the gallery strip at the bottom
-3. **Edit** resume content inline with the editor panel
-4. **Export** as PDF, DOCX, HTML, or LaTeX
+1. **Open** a resume file via drag-and-drop or the file picker
+2. **Browse** templates in the gallery strip — thumbnails update as PDFs generate in the background
+3. **Edit** content with the inline editor panel (click "Edit" in the header)
+4. **Customize layout** — adjust density, typography, header style, and section order
+5. **Export** as PDF, DOCX, HTML, or LaTeX
 
 ## Development
 
 ```bash
 just dev          # Wails dev server with hot reload
 just dev-clean    # clean caches, rebuild frontend, then dev
-just demo-desktop # run e2e tests and capture screenshots
+just demo-desktop # run e2e tests and capture screenshots + video
 ```
 
 ## Data Format
@@ -92,16 +146,20 @@ The data model is provided by the [resume-generator](https://github.com/urmzd/re
 
 ```
 resume-generator-app
-├── main.go          # Entry point — Wails app + CLI fallback
-├── app.go           # Go backend: file I/O, template listing, PDF generation
+├── main.go          # Entry point — Wails app (no args) or CLI fallback (with args)
+├── app.go           # Go backend: file I/O, template listing, PDF generation, validation
 ├── templates.go     # Embedded template FS
 ├── templates/       # Resume templates (html, latex, docx, markdown)
 ├── frontend/        # React + TypeScript + Tailwind UI
 │   └── src/
 │       ├── pages/         # DropPage, GalleryPage
-│       ├── components/    # PdfViewer, ThumbnailStrip, editor panels
-│       └── containers/    # GalleryContainer (state management)
-├── e2e/desktop/     # Playwright e2e tests
+│       ├── components/    # PdfViewer, ThumbnailStrip, AppHeader, ThemeToggle
+│       │   └── editor/    # Contact, Experience, Education, Skills, Projects,
+│       │                  # Certifications, Languages, Layout, Summary editors
+│       ├── containers/    # GalleryContainer (PDF caching, background generation)
+│       ├── hooks/         # useResumeEditor (draft state, validation, save)
+│       └── lib/           # Theme provider, PDF cache, utilities
+├── e2e/desktop/     # Playwright e2e tests + demo recording
 └── scripts/         # Shell scripts for dev tasks
 ```
 
