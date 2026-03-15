@@ -101,7 +101,13 @@ Pass any arguments to use the full [resume-generator CLI](https://github.com/urm
 
 ### Pre-built Binaries
 
-Download the latest release for your platform from the [Releases](https://github.com/urmzd/resume-generator-app/releases) page.
+```bash
+curl -fsSL https://raw.githubusercontent.com/urmzd/resume-generator-app/main/install.sh | bash
+```
+
+- **macOS**: installs the `.app` bundle to `/Applications`
+- **Linux**: installs the binary to `~/.local/bin`
+- **Windows**: download from the [Releases](https://github.com/urmzd/resume-generator-app/releases) page
 
 ### Build from Source
 
@@ -165,7 +171,7 @@ resume-generator-app
 
 ## Related
 
-- [resume-generator](https://github.com/urmzd/resume-generator) — the CLI tool and Go library that powers resume generation
+- [resume-generator](https://github.com/urmzd/resume-generator) — lightweight CLI for CI pipelines, scripting, and server environments (no GUI dependencies)
 
 ## License
 
