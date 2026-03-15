@@ -1,0 +1,23 @@
+# Resume Generator App
+
+> A native desktop app for building polished resumes with live PDF preview, template gallery, and inline editing. Built with Wails (Go backend) + React/TypeScript/Tailwind CSS. Features background pre-generation for instant template switching, full inline resume editing with real-time validation, drag-and-drop file handling, dark/light mode, and export to PDF, DOCX, HTML, and LaTeX. Includes the full resume-generator CLI as a fallback.
+
+## Docs
+
+- [README](https://github.com/urmzd/resume-generator-app/blob/main/README.md): Installation, usage, features, and architecture
+- [AGENTS.md](https://github.com/urmzd/resume-generator-app/blob/main/AGENTS.md): Architecture and development guide
+
+## API / Key Files
+
+- [main.go](https://github.com/urmzd/resume-generator-app/blob/main/main.go): Entry point (Wails GUI or CLI fallback)
+- [app.go](https://github.com/urmzd/resume-generator-app/blob/main/app.go): Go backend with Wails-bound methods
+- [frontend/src/pages/](https://github.com/urmzd/resume-generator-app/blob/main/frontend/src/pages/): DropPage, GalleryPage
+- [frontend/src/containers/](https://github.com/urmzd/resume-generator-app/blob/main/frontend/src/containers/): GalleryContainer (PDF caching)
+- [frontend/src/components/editor/](https://github.com/urmzd/resume-generator-app/blob/main/frontend/src/components/editor/): Inline resume field editors
+- [frontend/src/hooks/](https://github.com/urmzd/resume-generator-app/blob/main/frontend/src/hooks/): useResumeEditor hook
+- [wails.json](https://github.com/urmzd/resume-generator-app/blob/main/wails.json): Wails project configuration
+
+## Optional
+
+- [CONTRIBUTING](https://github.com/urmzd/resume-generator-app/blob/main/CONTRIBUTING.md): How to contribute
+- [Skill](https://github.com/urmzd/resume-generator-app/blob/main/skills/resume-generator-app/SKILL.md): Agent skill
