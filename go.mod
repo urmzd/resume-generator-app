@@ -3,7 +3,7 @@ module github.com/urmzd/resume-generator-app
 go 1.25.5
 
 require (
-	github.com/urmzd/resume-generator v0.9.1
+	github.com/urmzd/resume-generator v0.10.0
 	github.com/wailsapp/wails/v2 v2.11.0
 	go.uber.org/zap v1.24.0
 )
